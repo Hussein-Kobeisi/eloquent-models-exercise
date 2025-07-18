@@ -8,6 +8,7 @@ use App\Models\Agent;
 
 class InteractionController extends Controller
 {
+    
     function lastPerAgent() {
         return Interaction::addSelect([
             'last_inter' => Agent::select('name')

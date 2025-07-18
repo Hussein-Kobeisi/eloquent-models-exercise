@@ -9,7 +9,7 @@ use App\Models\Agent;
 class AgentController extends Controller
 {
     function getAllAgents(){
-        $agents = Agent::all();
+        $agents = withoutGlobalScope(ActiveScope::class)->get();
         $names = [];
 
         foreach($agents as $a){
@@ -21,22 +21,26 @@ class AgentController extends Controller
     }
 
     function getActiveAgents(){
-        $agents = Agent::where('active', 1)->orderBy('name')->limit(10)->get();
+        $agents = Agent::withoutGlobalScope(ActiveScope::class)->where('active', 1)->orderBy('name')->limit(10)->get();
 
         return json_encode($agents);
     }
 
     function tryFresh($name){
-        $agent = Agent::first();
+        $agent = Agent::withoutGlobalScope(ActiveScope::class)->first();
         $agent-> name = $name;
         $agent -> fresh();
+
+        $agent->clean = !$agent->isDirty();
+        if(!$agent->clean)
+            $agent->prev_name =  $agent->getOriginal('name');
 
         return json_encode($agent);
 
     }
 
     function tryRefresh($name){
-        $agent = Agent::first();
+        $agent = Agent::withoutGlobalScope(ActiveScope::class)->first();
         $agent-> name = $name;
         $agent -> refresh();
 
@@ -45,7 +49,7 @@ class AgentController extends Controller
     }
 
     function getRejectActiveAgents(){
-        $agents = Agent::all();
+        $agents = Agent::withoutGlobalScope(ActiveScope::class)->get();
         $agents = $agents->reject(
             fn($a) => $a->active
         );
@@ -54,22 +58,22 @@ class AgentController extends Controller
     }
 
     function chunkUpdateActive(){
-        Agent::chunk(10, function ($agents) {foreach($agents as $a){
+        Agent::withoutGlobalScope(ActiveScope::class)->chunk(10, function ($agents) {foreach($agents as $a){
             $a->active = !$a->active;
             $a->save();
         }});
 
-        $agents = Agent::limit(20)->get();
+        $agents = Agent::withoutGlobalScope(ActiveScope::class)->limit(20)->get();
 
         return json_encode($agents);
     }
 
     function lazyUpdateActive(){
-        foreach (Agent::lazy() as $a) {
+        foreach (Agent::withoutGlobalScope(ActiveScope::class)->lazy() as $a) {
             $a->update(['active' => !$a->active]);
         }
 
-        $agents = Agent::limit(20)->get();
+        $agents = Agent::withoutGlobalScope(ActiveScope::class)->limit(20)->get();
 
         return json_encode($agents);
     }
