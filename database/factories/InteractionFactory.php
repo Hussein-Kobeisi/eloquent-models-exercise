@@ -17,7 +17,9 @@ class InteractionFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'agent_id' => rand(0,10),
+            'input' => $this->faker->paragraph,
+            'response' => $this->faker->paragraph,
         ];
     }
 }

@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('interactions', function (Blueprint $table) {
             $table->id();
             $table->integer('agent_id');
-            $table->string('input');
-            $table->string('response');
+            $table->text('input');
+            $table->text('response');
             $table->timestamps();
         });
     }
