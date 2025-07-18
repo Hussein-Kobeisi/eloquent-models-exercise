@@ -12,6 +12,9 @@ class Agent extends Model
     use HasFactory;
     use HasUuids;
 
+    protected $fillable = [
+        'active'
+    ];
     protected $attributes = [
         'settings' => '[]',
     ];
